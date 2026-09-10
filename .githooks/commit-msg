@@ -1,0 +1,18 @@
+#!/bin/sh
+
+commit_regex='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_-]+\))?!?: .{1,88}$'
+message=$(head -n 1 "$1")
+
+if ! echo "$message" | grep -Eq "$commit_regex"; then
+    echo "===================================================================="
+    echo "[GIT HOOK ERROR] Commit message rejected!"
+    echo "Message: '$message'"
+    echo ""
+    echo "Format must strictly follow Conventional Commits:"
+    echo "  <type>(<optional-scope>): <description>"
+    echo ""
+    echo "Allowed types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+    echo "Example: chore(hooks): setup conventional commit hook"
+    echo "===================================================================="
+    exit 1
+fi
