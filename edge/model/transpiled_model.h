@@ -19,100 +19,100 @@ extern "C" {
 #define MICROSHIELD_TREE_NODE_COUNT     9U
 
 /**
- * @brief Index of left child node (-1 indicates a terminal leaf node).
+ * @brief Left child indices (-1 denotes a terminal leaf node).
  */
 static const int16_t TREE_CHILD_LEFT[MICROSHIELD_TREE_NODE_COUNT] = {
-     1,  /* Node 0: left child -> Node 1 */
-     3,  /* Node 1: left child -> Node 3 */
-    -1,  /* Node 2: Leaf (Rule ID 1)    */
-    -1,  /* Node 3: Leaf (Rule ID 7)    */
-    -1,  /* Node 4: Leaf (Rule ID 14)   */
-    -1,  /* Node 5: Leaf (Rule ID 22)   */
-    -1,  /* Node 6: Leaf (Rule ID 4)    */
-    -1,  /* Reserved / unused slot      */
-    -1   /* Reserved / unused slot      */
+     1,  /* Row 0: Internal (Root) -> Row 1                          */
+     3,  /* Row 1: Internal        -> Row 3                          */
+     5,  /* Row 2: Internal        -> Row 5                          */
+     7,  /* Row 3: Internal        -> Row 7                          */
+    -1,  /* Row 4: Leaf            (Rule 14: Volumetric Buffer Flood)*/
+    -1,  /* Row 5: Leaf            (Rule 1:  Nominal Cyclic Flow)    */
+    -1,  /* Row 6: Leaf            (Rule 4:  Out-of-Spec Payload)    */
+    -1,  /* Row 7: Leaf            (Rule 7:  Borderline Burst Drift) */
+    -1   /* Row 8: Leaf            (Rule 22: High-Entropy Fuzzing)   */
 };
 
 /**
- * @brief Index of right child node (-1 indicates a terminal leaf node).
+ * @brief Right child indices (-1 denotes a terminal leaf node).
  */
 static const int16_t TREE_CHILD_RIGHT[MICROSHIELD_TREE_NODE_COUNT] = {
-     2,  /* Node 0: right child -> Node 2 */
-     4,  /* Node 1: right child -> Node 4 */
-    -1,  /* Node 2: Leaf (Rule ID 1)     */
-    -1,  /* Node 3: Leaf (Rule ID 7)     */
-    -1,  /* Node 4: Leaf (Rule ID 14)    */
-    -1,  /* Node 5: Leaf (Rule ID 22)    */
-    -1,  /* Node 6: Leaf (Rule ID 4)     */
-    -1,  /* Reserved / unused slot       */
-    -1   /* Reserved / unused slot       */
+     2,  /* Row 0: Internal (Root) -> Row 2                          */
+     4,  /* Row 1: Internal        -> Row 4                          */
+     6,  /* Row 2: Internal        -> Row 6                          */
+     8,  /* Row 3: Internal        -> Row 8                          */
+    -1,  /* Row 4: Leaf            (Rule 14: Volumetric Buffer Flood)*/
+    -1,  /* Row 5: Leaf            (Rule 1:  Nominal Cyclic Flow)    */
+    -1,  /* Row 6: Leaf            (Rule 4:  Out-of-Spec Payload)    */
+    -1,  /* Row 7: Leaf            (Rule 7:  Borderline Burst Drift) */
+    -1   /* Row 8: Leaf            (Rule 22: High-Entropy Fuzzing)   */
 };
 
 /**
- * @brief Feature index evaluated at each node:
+ * @brief Feature index evaluated at each row:
  * 0: norm_length
  * 1: delta_time_us
  * 2: protocol_flags
  * 3: byte_variance
  */
 static const uint8_t TREE_FEATURE[MICROSHIELD_TREE_NODE_COUNT] = {
-    1U,  /* Node 0: delta_time_us */
-    0U,  /* Node 1: norm_length   */
-    3U,  /* Node 2: byte_variance */
-    3U,  /* Node 3: byte_variance */
-    0U,  /* Node 4: terminal leaf */
-    0U,  /* Node 5: terminal leaf */
-    0U,  /* Node 6: terminal leaf */
-    0U,  /* Unused                */
-    0U   /* Unused                */
+    1U,  /* Row 0: delta_time_us */
+    0U,  /* Row 1: norm_length   */
+    3U,  /* Row 2: byte_variance */
+    3U,  /* Row 3: byte_variance */
+    0U,  /* Row 4: Terminal leaf */
+    0U,  /* Row 5: Terminal leaf */
+    0U,  /* Row 6: Terminal leaf */
+    0U,  /* Row 7: Terminal leaf */
+    0U   /* Row 8: Terminal leaf */
 };
 
 /**
- * @brief Split threshold constants evaluated at each node.
+ * @brief Split threshold constants evaluated at each row.
  */
 static const float TREE_THRESHOLD[MICROSHIELD_TREE_NODE_COUNT] = {
-     80.0f,  /* Node 0: delta_time_us <= 80.0 us */
-      0.5f,  /* Node 1: norm_length <= 0.50       */
-     50.0f,  /* Node 2: byte_variance <= 50.0     */
-    150.0f,  /* Node 3: byte_variance <= 150.0    */
-      0.0f,  /* Node 4: terminal leaf             */
-      0.0f,  /* Node 5: terminal leaf             */
-      0.0f,  /* Node 6: terminal leaf             */
-      0.0f,  /* Unused                            */
-      0.0f   /* Unused                            */
+     80.0f,  /* Row 0: delta_time_us <= 80.0 us */
+      0.5f,  /* Row 1: norm_length <= 0.50       */
+     50.0f,  /* Row 2: byte_variance <= 50.0     */
+    150.0f,  /* Row 3: byte_variance <= 150.0    */
+      0.0f,  /* Row 4: Terminal leaf             */
+      0.0f,  /* Row 5: Terminal leaf             */
+      0.0f,  /* Row 6: Terminal leaf             */
+      0.0f,  /* Row 7: Terminal leaf             */
+      0.0f   /* Row 8: Terminal leaf             */
 };
 
 /**
- * @brief Verdict classification emitted at terminal leaf nodes:
+ * @brief Classification verdict emitted at terminal leaves:
  * 0: VERDICT_BENIGN
  * 1: VERDICT_ATTACK
  * 2: VERDICT_AMBIGUOUS
  */
 static const uint8_t TREE_LEAF_VERDICT[MICROSHIELD_TREE_NODE_COUNT] = {
-    2U,  /* Node 0: internal node               */
-    2U,  /* Node 1: internal node               */
-    0U,  /* Node 2: BENIGN (Rule ID 1)          */
-    2U,  /* Node 3: AMBIGUOUS (Rule ID 7)       */
-    1U,  /* Node 4: ATTACK (Rule ID 14)         */
-    1U,  /* Node 5: ATTACK (Rule ID 22)         */
-    2U,  /* Node 6: AMBIGUOUS (Rule ID 4)       */
-    0U,  /* Unused                              */
-    0U   /* Unused                              */
+    2U,  /* Row 0: Internal node                                     */
+    2U,  /* Row 1: Internal node                                     */
+    2U,  /* Row 2: Internal node                                     */
+    2U,  /* Row 3: Internal node                                     */
+    1U,  /* Row 4: VERDICT_ATTACK    (Rule 14: Volumetric Buffer)    */
+    0U,  /* Row 5: VERDICT_BENIGN    (Rule 1:  Nominal Process)      */
+    2U,  /* Row 6: VERDICT_AMBIGUOUS (Rule 4:  Out-of-Spec Payload)  */
+    2U,  /* Row 7: VERDICT_AMBIGUOUS (Rule 7:  Borderline Burst)     */
+    1U   /* Row 8: VERDICT_ATTACK    (Rule 22: High-Entropy Fuzzing) */
 };
 
 /**
  * @brief Explainable AI (XAI) immutable rule identifier for terminal leaves.
  */
 static const uint16_t TREE_LEAF_RULE_ID[MICROSHIELD_TREE_NODE_COUNT] = {
-     0U,  /* Node 0: internal node */
-     0U,  /* Node 1: internal node */
-     1U,  /* Node 2: Rule 1  (BENIGN: Nominal Cyclic Flow)       */
-     7U,  /* Node 3: Rule 7  (AMBIGUOUS: Borderline Burst Flow)  */
-    14U,  /* Node 4: Rule 14 (ATTACK: Volumetric Buffer Flood)   */
-    22U,  /* Node 5: Rule 22 (ATTACK: High-Entropy Fuzzing Scan) */
-     4U,  /* Node 6: Rule 4  (AMBIGUOUS: Out-of-Spec Payload)    */
-     0U,  /* Unused                                              */
-     0U   /* Unused                                              */
+     0U,  /* Row 0: Internal node                                     */
+     0U,  /* Row 1: Internal node                                     */
+     0U,  /* Row 2: Internal node                                     */
+     0U,  /* Row 3: Internal node                                     */
+    14U,  /* Row 4: Rule 14 (ATTACK: Volumetric Buffer Flooding)      */
+     1U,  /* Row 5: Rule 1  (BENIGN: Nominal Cyclic Process Flow)     */
+     4U,  /* Row 6: Rule 4  (AMBIGUOUS: Out-of-Spec Payload / Drift)  */
+     7U,  /* Row 7: Rule 7  (AMBIGUOUS: Borderline Burst / Drift)     */
+    22U   /* Row 8: Rule 22 (ATTACK: High-Entropy Fuzzing Scan)       */
 };
 
 #ifdef __cplusplus

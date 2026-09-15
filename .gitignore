@@ -1,0 +1,11 @@
+
+# C test binaries and objects
+edge/tests/*_bin
+*.o
+*.a
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
