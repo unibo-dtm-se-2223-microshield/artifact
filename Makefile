@@ -1,32 +1,32 @@
-.PHONY: help test test-c test-py typecheck lint clean
+# MicroShield Polyglot Root Makefile
+# Orchestrates C99 bare-metal edge firmware and Python MLOps supervisory tier
 
-help:
-	@echo "MicroShield Artifact Build System"
-	@echo "---------------------------------"
-	@echo "make test-c      : Compila ed esegue i test di unità del motore C99"
-	@echo "make test-py     : Esegue i test di unità Python con pytest"
-	@echo "make typecheck   : Esegue il type checker statico mypy (strict)"
-	@echo "make lint        : Verifica la formattazione con flake8 e black"
-	@echo "make test        : Esegue tutti i test (C + Python)"
-	@echo "make clean       : Pulisce file binari e cache di compilazione"
+.PHONY: all test test-c test-py typecheck clean
 
+all: test
+
+# 1. Edge C99 Verification Suite
 test-c:
-	@$(MAKE) -C edge test
+	@echo "=== [1/3] Running Bare-Metal C99 Edge Test Suite ==="
+	$(MAKE) -C edge test
 
+# 2. Supervisory Python Test Suite (inside Poetry virtual environment)
 test-py:
-	cd supervisor && pytest tests/
+	@echo "=== [2/3] Running Python Supervisory Test Suite ==="
+	cd supervisor && poetry run pytest -v tests/
 
+# 3. Static Type Verification (strict mode PEP 484/526)
 typecheck:
-	cd supervisor && mypy dashield/
+	@echo "=== [3/3] Running Strict Static Typecheck (mypy) ==="
+	cd supervisor && poetry run mypy --strict dashield/ tests/
 
-lint:
-	cd supervisor && flake8 dashield/ tests/
-	cd supervisor && black --check dashield/ tests/
-
+# Universal Regression Gate
 test: test-c test-py typecheck
+	@echo ""
+	@echo "============================================================"
+	@echo "  ALL MICROSHIELD TESTS & STATIC GATES PASSED (C99 + PYTHON)"
+	@echo "============================================================"
 
 clean:
-	@$(MAKE) -C edge clean || true
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name ".mypy_cache" -exec rm -rf {} +
+	$(MAKE) -C edge clean
+	rm -rf supervisor/.pytest_cache supervisor/.mypy_cache
